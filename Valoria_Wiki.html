@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valoria Campaign Wiki</title>
+    <style>
+        :root {
+            --bg-color: #f4e4bc;
+            --text-color: #2c241b;
+            --accent-color: #8b0000;
+            --sidebar-bg: #2c241b;
+            --sidebar-text: #f4e4bc;
+            --card-bg: #fff8dc;
+            --border-color: #8b4513;
+        }
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        /* Sidebar Navigation */
+        nav {
+            width: 250px;
+            background-color: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.5);
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+        nav h1 {
+            font-size: 1.5em;
+            border-bottom: 1px solid var(--sidebar-text);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            color: #e6c288;
+        }
+        nav a {
+            color: var(--sidebar-text);
+            text-decoration: none;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            transition: background 0.3s;
+            cursor: pointer;
+        }
+        nav a:hover, nav a.active {
+            background-color: var(--accent-color);
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            background-image: radial-gradient(#8b4513 0.5px, transparent 0.5px);
+            background-size: 20px 20px;
+            background-color: var(--bg-color);
+        }
+        .content-section {
+            display: none;
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border: 1px solid var(--border-color);
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+            border-radius: 5px;
+        }
+        .content-section.active {
+            display: block;
+        }
+        h2 {
+            color: var(--accent-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 5px;
+            margin-top: 0;
+        }
+        h3 {
+            color: #5a3a22;
+            margin-top: 20px;
+            border-bottom: 1px dashed var(--border-color);
+        }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+        }
+        .card h3 {
+            margin-top: 0;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 5px;
+        }
+        .status-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        .status-completed { background: #c8e6c9; color: #2e7d32; }
+        .status-active { background: #ffccbc; color: #bf360c; }
+        .status-unknown { background: #e0e0e0; color: #424242; }
+
+        /* Lists */
+        ul { padding-left: 20px; }
+        li { margin-bottom: 5px; }
+
+        .flavour-text {
+            font-style: italic;
+            color: #5a3a22;
+            border-left: 3px solid var(--border-color);
+            padding-left: 12px;
+            margin: 15px 0;
+        }
+
+        /* NPC portrait rows */
+        .npc-entry {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed var(--border-color);
+        }
+        .npc-entry:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .npc-portrait {
+            width: 90px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+        .npc-portrait-placeholder {
+            width: 90px;
+            height: 90px;
+            background: #e8d8b0;
+            border-radius: 5px;
+            border: 1px dashed var(--border-color);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65em;
+            color: #8b6540;
+            text-align: center;
+            padding: 4px;
+        }
+        .npc-text strong { display: block; margin-bottom: 3px; color: #5a3a22; }
+
+        /* Location cards with images */
+        .loc-card {
+            border: 1px solid var(--border-color);
+            background: white;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .loc-card img.loc-scene {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            display: block;
+        }
+        .loc-card-placeholder {
+            width: 100%;
+            height: 180px;
+            background: #e8d8b0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            color: #8b6540;
+        }
+        .loc-card-body {
+            padding: 15px;
+        }
+        .loc-card-body h3 {
+            margin-top: 0;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 5px;
+        }
+        .map-toggle {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--accent-color);
+            font-family: 'Georgia', serif;
+            font-size: 0.85em;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        .map-toggle:hover { background: #f4e4bc; }
+        .map-container {
+            display: none;
+            margin-top: 10px;
+        }
+        .map-container img {
+            width: 100%;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Lore images */
+        .lore-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            margin: 15px 0;
+            display: block;
+        }
+
+        /* Mobile Support */
+        @media (max-width: 768px) {
+            body { flex-direction: column; overflow: auto; height: auto; }
+            nav { width: 100%; height: auto; flex-direction: row; overflow-x: auto; padding: 10px; flex-shrink: 0; }
+            nav h1 { display: none; }
+            main { padding: 10px; overflow-y: visible; }
+            .npc-portrait, .npc-portrait-placeholder { width: 65px; height: 65px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <h1>Valoria Wiki</h1>
+    <a onclick="showSection('home', this)" class="active">🏠 Home</a>
+    <a onclick="showSection('party', this)">🛡️ The Party</a>
+    <a onclick="showSection('npcs', this)">👥 Known NPCs</a>
+    <a onclick="showSection('locations', this)">🗺️ Locations</a>
+    <a onclick="showSection('quests', this)">📜 Quest Log</a>
+    <a onclick="showSection('loot', this)">🎒 Loot & Items</a>
+    <a onclick="showSection('lore', this)">📚 Lore & History</a>
+    <a onclick="showSection('episodes', this)">📖 Episode Guide</a>
+</nav>
+
+<main>
+    <!-- HOME -->
+    <div id="home" class="content-section active">
+        <h2>Welcome to Valoria</h2>
+        <p>The chronicle of our party's adventures across the world of Valoria — updated as events unfold.</p>
+
+        <div class="card">
+            <h3>Current Status</h3>
+            <p><strong>Location:</strong> Stonebridge — West Gate inner market</p>
+            <p><strong>Party Level:</strong> 6</p>
+            <p><strong>Situation:</strong> Wanted by the Gilded Mantle. Just entered the city. A halfling child has spotted a posted WANTED notice and is pointing at the party.</p>
+        </div>
+
+        <p class="flavour-text">"The quiet stream still reaches the sea."</p>
+
+        <p><em>The druid Maelis of Greenglen once called us the <strong>Protectors of Greenglen</strong>. Whether that name sticks is another matter.</em></p>
+    </div>
+
+    <!-- PARTY -->
+    <div id="party" class="content-section">
+        <h2>The Party</h2>
+        <div class="card-grid">
+            <div class="card">
+                <img src="images/party_romlim.png" alt="Romlim Underbringer" style="width:100%;height:160px;object-fit:cover;border-radius:4px;margin-bottom:10px;">
+                <h3>Romlim Underbringer</h3>
+                <p><strong>Race/Class:</strong> Dwarf — Wild Magic Barbarian</p>
+                <p><strong>From:</strong> Durkoth's Forge</p>
+                <p><strong>Background:</strong> Master smith and soldier. His family forge was destroyed and an ancient artefact stolen from beneath its foundations. He set out to find the man responsible — and found Calder Duskwhisper. That grudge is settled. The ones who sent Calder are not.</p>
+                <p><strong>Notable:</strong> Has a habit of marking significant moments in a very specific way.</p>
+            </div>
+            <div class="card">
+                <img src="images/party_parineeti.png" alt="Parineeti Elfreide" style="width:100%;height:160px;object-fit:cover;border-radius:4px;margin-bottom:10px;">
+                <h3>Parineeti Elfreide</h3>
+                <p><strong>Race/Class:</strong> Half-Elf — Swarmkeeper Ranger</p>
+                <p><strong>From:</strong> Lathloria (merchant family)</p>
+                <p><strong>Background:</strong> Left her family's mercantile empire for the wilds. Bonded with Shadow. Her mentor Kaelen Myrrath's resting place was desecrated by Calder's corruption — that trail led her here. Her family has connections to shadowy organisations she is only beginning to understand.</p>
+            </div>
+            <div class="card">
+                <img src="images/party_gwen.png" alt="Gwen" style="width:100%;height:160px;object-fit:cover;border-radius:4px;margin-bottom:10px;">
+                <h3>Gwen</h3>
+                <p><strong>Race/Class:</strong> High Elf — Arcane Trickster Rogue</p>
+                <p><strong>From:</strong> Lathloria (noble house)</p>
+                <p><strong>Background:</strong> Youngest daughter of a noble family. Trained in diplomacy and court etiquette — but craved a different kind of life. Mentored by a master rogue. Expert infiltrator operating under a false name. Her family, too, has complicated ties to organisations she is just learning exist.</p>
+            </div>
+            <div class="card">
+                <img src="images/party_shadow.png" alt="Shadow" style="width:100%;height:160px;object-fit:cover;border-radius:4px;margin-bottom:10px;">
+                <h3>Shadow (Lord Phelan)</h3>
+                <p><strong>Nature:</strong> Fey Wolf / Companion</p>
+                <p><strong>Background:</strong> Not a natural creature. The Fey confirmed he should not exist in this world in the way he does. His white fur shimmers faintly. He is bonded to Parineeti — a bond the Fey called "a rare gift, not theft." The Fey Court named him Lord Phelan. He communicates telepathically with Parineeti and can step between places in an instant.</p>
+            </div>
+            <div class="card">
+                <h3>Eilwynn — Deceased</h3>
+                <p><strong>Race/Class:</strong> Druid</p>
+                <p><strong>Status:</strong> Fallen hero. Murdered by Shadow Druids in Greenglen on the first night. Avenged. Pissed on by Romlim.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- NPCS -->
+    <div id="npcs" class="content-section">
+        <h2>Known NPCs</h2>
+        <p><em>People the party has actually met. The world is full of others yet to be encountered.</em></p>
+
+        <h3>Greenglen</h3>
+        <div class="npc-entry">
+            <img src="images/npc_maelis.png" alt="Maelis" class="npc-portrait">
+            <div class="npc-text"><strong>Maelis</strong> Village druid. Was captured and replaced by a doppelganger — the real Maelis was rescued and returned to her village. She named the party "Protectors of Greenglen."</div>
+        </div>
+        <div class="npc-entry">
+            <img src="images/npc_elda.png" alt="Elda" class="npc-portrait">
+            <div class="npc-text"><strong>Elda</strong> Greenglen innkeeper. Also captured and replaced. Retired adventurer. Tougher than she looks.</div>
+        </div>
+
+        <h3>Plowmere</h3>
+        <div class="npc-entry">
+            <img src="images/npc_dain.png" alt="Dain" class="npc-portrait">
+            <div class="npc-text"><strong>Dain</strong> Dwarven blacksmith. Swore a life debt to Romlim. Hired the party to investigate the sabotaged iron supply. Has a sending stone — stays in contact. The party's house in Plowmere is next to his forge.</div>
+        </div>
+        <div class="npc-entry">
+            <img src="images/npc_elara_bramblefoot.png" alt="Elara Bramblefoot" class="npc-portrait">
+            <div class="npc-text"><strong>Elara Bramblefoot</strong> Halfling proprietor of the Barleybrook Inn. Gave the party free room and board after the drought was resolved. Reliable ally.</div>
+        </div>
+        <div class="npc-entry">
+            <img src="images/npc_father_orin.png" alt="Father Orin" class="npc-portrait">
+            <div class="npc-text"><strong>Father Orin</strong> Elderly, nervous priest of Chauntea. Hired the party to investigate Murmuring Brook. Provided blessed herbs and salt for the Fenlow Farm exorcism.</div>
+        </div>
+        <div class="npc-entry">
+            <img src="images/npc_aldwin_harcourt.webp" alt="Aldwyn Harcourt" class="npc-portrait">
+            <div class="npc-text"><strong>Aldwyn Harcourt</strong> Town Hall clerk. Helpful with records and archives.</div>
+        </div>
+        <div class="npc-entry">
+            <img src="images/npc_lark.webp" alt="Lark" class="npc-portrait">
+            <div class="npc-text"><strong>Lark</strong> Young town crier boy. "Cupcake" prank victim and reluctant informant.</div>
+        </div>
+
+        <h3>The Silent Accord</h3>
+        <div class="npc-entry">
+            <img src="images/npc_liris_vahl.png" alt="Liris Vahl" class="npc-portrait">
+            <div class="npc-text"><strong>Liris Vahl</strong> Mysterious elven agent. Calm, observant, and clearly skilled in ways that go beyond what she volunteers. Tracks ancient threats — specifically what she calls "Etherions." Knows the party's true identities, their family histories, and that they reactivated the Monument. Considers them reckless but competent. Provided the West Gate credentials in exchange for all evidence gathered against Vael. Her organisation has past dealings with both Parineeti's and Gwen's families.</div>
+        </div>
+
+        <h3>Enemies &amp; Threats</h3>
+        <div class="npc-entry">
+            <img src="images/npc_mysterious_figure.webp" alt="House Vael" class="npc-portrait">
+            <div class="npc-text"><strong>House Vael</strong> Corrupt noble house. Controls Stonebridge and its surrounding region. Behind the grain smuggling and the iron sabotage in Plowmere. Their private militia, the Gilded Mantle, is actively hunting the party. Sigil: three-headed serpent on a black blade.</div>
+        </div>
+        <div class="npc-entry">
+            <img src="images/npc_calder_duskwhisper.png" alt="Calder Duskwhisper" class="npc-portrait">
+            <div class="npc-text"><strong>Calder Duskwhisper — Deceased</strong> Rogue mage. Architect of the Greenglen crisis. His cloaked figures destroyed Romlim's forge and stole what lay beneath it. Killed by Romlim at the Ruined Temple. Whatever power he served did not die with him.</div>
+        </div>
+        <div class="npc-entry">
+            <img src="images/lore_architect_of_change.png" alt="The Architect of Change" class="npc-portrait">
+            <div class="npc-text"><strong>The Architect of Change</strong> An entity that appeared the moment Calder fell. Many eyes opening and closing, shifting limbs and faces. Spoke directly into the party's minds. Said: <em>"The bonds weaken, the fractures grow... Remember this day, for it marks only the beginning."</em> Its nature and purpose are unknown.</div>
+        </div>
+        <div class="npc-entry">
+            <img src="images/npc_doran_fell.png" alt="Doran Fell" class="npc-portrait">
+            <div class="npc-text"><strong>Doran Fell — At Large</strong> The miller of Greenglen was not the miller of Greenglen. A doppelganger in Calder's network, posing as a local for months. Fled north when the operation collapsed. His destination: somewhere called "The Warren." He knows the party's faces, names, and methods. He has not been found.</div>
+        </div>
+    </div>
+
+    <!-- LOCATIONS -->
+    <div id="locations" class="content-section">
+        <h2>Locations</h2>
+
+        <div class="loc-card">
+            <img src="images/loc_greenglen.png" alt="Greenglen" class="loc-scene">
+            <div class="loc-card-body">
+                <h3>Greenglen</h3>
+                <p>A small farming village saved from Shadow Druid corruption. Home of the real Maelis and Elda. Where the adventure began — and where Eilwynn fell.</p>
+                <button class="map-toggle" onclick="toggleMap('map-greenglen', this)">🗺 View Map</button>
+                <div class="map-container" id="map-greenglen">
+                    <img src="images/map_greenglen.webp" alt="Greenglen Map">
+                </div>
+            </div>
+        </div>
+
+        <div class="loc-card">
+            <img src="images/loc_plowmere.png" alt="Plowmere" class="loc-scene">
+            <div class="loc-card-body">
+                <h3>Plowmere</h3>
+                <p>A grain-trading town along the river road north. Drought solved. Grain smuggling and iron sabotage exposed. The party owns a four-bed house here, next to Dain's forge.</p>
+                <button class="map-toggle" onclick="toggleMap('map-plowmere', this)">🗺 View Map</button>
+                <div class="map-container" id="map-plowmere">
+                    <img src="images/map_plowmere.png" alt="Plowmere Map">
+                </div>
+            </div>
+        </div>
+
+        <div class="loc-card">
+            <img src="images/loc_fenlow_farmstead.png" alt="The Fenlow Farmstead" class="loc-scene">
+            <div class="loc-card-body">
+                <h3>The Fenlow Farmstead</h3>
+                <p>A ruined farm west of Plowmere. Haunted by a Lantern Spirit connected to an old tragedy. Cleansed through ritual. Source of several magical items.</p>
+            </div>
+        </div>
+
+        <div class="loc-card">
+            <img src="images/loc_unfinished_monument.png" alt="The Unfinished Monument" class="loc-scene">
+            <div class="loc-card-body">
+                <h3>The Unfinished Monument</h3>
+                <p>An ancient ruin south of Plowmere, built by a civilisation that predates current history. Contains a sealed portal and mechanical Sentinel constructs. The party activated and then closed it. The Etherion Core was recovered here — as was something else that followed them out.</p>
+            </div>
+        </div>
+
+        <div class="loc-card">
+            <img src="images/loc_stonebridge.png" alt="Stonebridge" class="loc-scene">
+            <div class="loc-card-body">
+                <h3>Stonebridge</h3>
+                <p>A large fortified city straddling the River Elaris — the primary trade route between the agricultural south and the capital. Controlled by House Vael and their Gilded Mantle militia. Currently under a tightened security decree. The Great Stone Bridge is its landmark: ancient dwarven engineering, always loud, always moving. The party just arrived. Wanted posters are already up.</p>
+            </div>
+        </div>
+
+        <div class="loc-card">
+            <img src="images/loc_durkoth_forge.png" alt="Durkoth's Forge" class="loc-scene">
+            <div class="loc-card-body">
+                <h3>Durkoth's Forge</h3>
+                <p>The dwarven capital, deep in the Ironclad Mountains. Accessible only through Frostfire Pass. The entire city is built around the sacred act of forging — every hammer-strike a prayer to Thulmir, god of the forge. The Underbringer family forge was here, in the Heart — the city's great crafting district. Destroyed. The cause is not fully understood.</p>
+            </div>
+        </div>
+
+        <div class="loc-card">
+            <img src="images/loc_lathloria.png" alt="Lathloria" class="loc-scene">
+            <div class="loc-card-body">
+                <h3>Lathloria</h3>
+                <p>An elven city — home to the Anorakire noble house (Gwen's family) and, some distance away, the Elfreide merchant family (Parineeti's). The Whispering Woods lie nearby. Both families have ties that are proving more complicated than either PC knew.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- QUESTS -->
+    <div id="quests" class="content-section">
+        <h2>Quest Log</h2>
+
+        <h3>Active</h3>
+        <ul>
+            <li><span class="status-tag status-active">Active</span> <strong>Survive Stonebridge:</strong> Inside the walls. Wanted. No safe house yet. The clock is already ticking.</li>
+            <li><span class="status-tag status-active">Active</span> <strong>The Warren:</strong> A Thieves' Cant note found at the Greenglen mill read: <em>"Operations active. Await instructions at the Warren. Maintain discretion. Keep grain flowing."</em> The Warren is somewhere north. Its nature is unknown.</li>
+            <li><span class="status-tag status-active">Active</span> <strong>The Core:</strong> The crystalline sphere from the Monument is in the party's possession and bonded to them. What it is, and what it is for, is not yet understood.</li>
+            <li><span class="status-tag status-active">Active</span> <strong>The Planar Wound:</strong> The Fey charged the party with investigating a wound in the fabric of the world — and a name: Zurakan. The visions at the Chiming Hollow may be part of this.</li>
+        </ul>
+
+        <h3>Completed</h3>
+        <ul>
+            <li><span class="status-tag status-completed">Completed</span> <strong>The Greenglen Crisis:</strong> Exposed the doppelgangers, rescued Maelis and Elda, defeated Calder Duskwhisper.</li>
+            <li><span class="status-tag status-completed">Completed</span> <strong>The Drought:</strong> Appeased the Nyad at Murmuring Brook. Town water restored.</li>
+            <li><span class="status-tag status-completed">Completed</span> <strong>The Lantern Spirit:</strong> Investigated the Fenlow Farm haunting. Performed the banishment ritual.</li>
+            <li><span class="status-tag status-completed">Completed</span> <strong>The Blacksmith's Dilemma:</strong> Infiltrated the Old Smelter Route. Defeated Gregor Vael. Recovered alchemical evidence of iron sabotage (Compound CX-3). Evidence handed to Liris Vahl.</li>
+            <li><span class="status-tag status-completed">Completed</span> <strong>Harvest Hoarders:</strong> Exposed Bram Calloway's grain skimming and the northern smuggling detour. Handed him to authorities.</li>
+            <li><span class="status-tag status-completed">Completed</span> <strong>The Call of the Shadowed Glade:</strong> Completed the Fey trial. Parineeti and Shadow's bond was confirmed and named. The party received a charge from the Fey Court.</li>
+        </ul>
+    </div>
+
+    <!-- LOOT -->
+    <div id="loot" class="content-section">
+        <h2>Notable Loot &amp; Items</h2>
+
+        <h3>Magical Items</h3>
+        <ul>
+            <li><strong>The Etherion Core:</strong> A crystalline sphere of ancient origin. Bonded to the party. Its purpose is unknown. <em>Shared.</em></li>
+            <li><strong>Ravager's Crescent:</strong> +1 Greataxe. Blackened steel. <em>Romlim.</em></li>
+            <li><strong>Fenlow's Warding Shawl:</strong> Resistance to necrotic damage. <em>Romlim.</em></li>
+            <li><strong>Pendant of the Second Breath:</strong> Auto-stabilise once per day. <em>Parineeti.</em></li>
+            <li><strong>Ring of Shadows:</strong> Invisibility once per day, +1 to Stealth. <em>Parineeti.</em></li>
+            <li><strong>Whisper Blade:</strong> Short sword. Modified by Romlim for free-action deployment. <em>Gwen.</em></li>
+            <li><strong>Shadowbranch Shortbow:</strong> +1 Shortbow. Can cast Silence. <em>Gwen.</em></li>
+            <li><strong>Gloves of Thievery:</strong> Bonus to Sleight of Hand and lockpicking. <em>Gwen.</em></li>
+            <li><strong>Ring of Protection:</strong> +1 AC. <em>Gwen.</em></li>
+        </ul>
+
+        <h3>Key Documents &amp; Evidence</h3>
+        <ul>
+            <li><strong>Gregor's Journal:</strong> Encrypted notes on the "Green Glen Initiative." Handed to Liris Vahl.</li>
+            <li><strong>CX-3 Vials:</strong> Samples of the iron-tainting alchemical compound. Handed to Liris Vahl.</li>
+            <li><strong>The Warren Note:</strong> Thieves' Cant message found at the Greenglen mill: <em>"Operations active. Await instructions at the Warren. Maintain discretion. Keep grain flowing."</em></li>
+            <li><strong>Encrypted Sending Stone:</strong> Recovered from the Vael Retribution Squad ambush on the road. Mentions "Theta Group" and the initials "V.H."</li>
+        </ul>
+    </div>
+
+    <!-- LORE -->
+    <div id="lore" class="content-section">
+        <h2>Lore &amp; History</h2>
+
+        <h3>The Etherions</h3>
+        <p>An ancient civilisation that predates everything the party knows. They built the Unfinished Monument, the Sentinel constructs, and the Etherion Core. Their technology is unlike modern magic — mechanical, crystalline, incomprehensible in function. At some point something went catastrophically wrong. Whatever they did tore through the fabric of reality in an event those who know of it call <strong>The Fall</strong>. The Silent Accord's agent Liris Vahl tracks the remnants of Etherion sites and contains what escaped.</p>
+        <p>Something from the Monument followed the party out. It calls itself — or was called — <strong>Flick</strong>.</p>
+
+        <h3>The Architect of Change</h3>
+        <img src="images/lore_architect_of_change.png" alt="The Architect of Change" class="lore-image">
+        <p>An entity that appeared the moment Calder Duskwhisper was killed. It did not seem surprised. It had many eyes — opening and closing across its body — and shifting features. It spoke in a voice that sounded like several voices at once, directly into the party's minds.</p>
+        <p class="flavour-text">"The bonds weaken, the fractures grow... my master's will moves ever closer to fruition."<br>"Remember this day, for it marks only the beginning."</p>
+        <p>It serves something. What that something is has not yet been revealed — only glimpsed.</p>
+
+        <h3>Zurakan</h3>
+        <p>A name given to the party by the Fey Court. They spoke of his <em>stirring</em> — and charged the party with investigating both the planar wound and what his return might mean. Parineeti had a vision at the Chiming Hollow of an enormous lightning-wreathed figure. The connections are not yet clear.</p>
+
+        <h3>The Chiming Hollow Visions</h3>
+        <p>On the road north to Stonebridge, the party passed through a ruin of ringing stone called the Chiming Hollow. Each party member received a vision. The details differ — mountains, a dark shape kneeling, a pyramid in sand — but all feel connected to the same unfolding truth. None have been fully explained.</p>
+    </div>
+
+    <!-- EPISODES -->
+    <div id="episodes" class="content-section">
+        <h2>Episode Guide</h2>
+
+        <h3>Arc 1 — The Greenglen Crisis (Episodes 1–8)</h3>
+        <ul>
+            <li><strong>Ep 1–3:</strong> Arrival in Greenglen during the Spring Blessing. Corrupted spirits. Eilwynn murdered overnight.</li>
+            <li><strong>Ep 4–5:</strong> Investigation into Calder Duskwhisper. Encounters with Shadow Druids and bandits in the Old Forest. Party reaches Level 3.</li>
+            <li><strong>Ep 6:</strong> Discovery that Maelis and Elda had been replaced by doppelgangers. Rescue from a cave.</li>
+            <li><strong>Ep 7:</strong> Final confrontation with Calder Duskwhisper at the Ruined Temple. Killed by Romlim. The Architect of Change appeared immediately after.</li>
+            <li><strong>Ep 8:</strong> Return to Greenglen. The real Maelis and Elda killed their doppelgangers. Party named "Protectors of Greenglen." Reached <strong>Level 5</strong>.</li>
+        </ul>
+
+        <h3>Arc 2 — The Road &amp; Plowmere (Episodes 9–18)</h3>
+        <ul>
+            <li><strong>Ep 9:</strong> The journey north. Visions at the Chiming Hollow.</li>
+            <li><strong>Ep 10:</strong> Arrival in Plowmere. Drought investigation — the Nyad at Murmuring Brook.</li>
+            <li><strong>Ep 11:</strong> The Unfinished Monument. The Etherion Core recovered. Flick emerged. First meeting with Liris Vahl.</li>
+            <li><strong>Ep 12–13:</strong> The Fenlow Farmstead haunting. The Lantern Spirit banished.</li>
+            <li><strong>Ep 14–16:</strong> Uncovering the grain smuggling and iron sabotage. Raid on the Old Smelter Route. Gregor Vael defeated.</li>
+            <li><strong>Ep 17:</strong> Rewards and the house gift. Deal struck with Liris Vahl — all Vael evidence exchanged for West Gate credentials.</li>
+            <li><strong>Ep 18:</strong> The Fey Trial in the Shadowed Glade. Parineeti and Shadow's bond confirmed. The party charged by the Fey Court. Entry into Stonebridge — and the WANTED poster.</li>
+        </ul>
+    </div>
+
+</main>
+
+<script>
+    function toggleMap(mapId, btn) {
+        const map = document.getElementById(mapId);
+        const visible = map.style.display === 'block';
+        map.style.display = visible ? 'none' : 'block';
+        btn.textContent = visible ? '🗺 View Map' : '🗺 Hide Map';
+    }
+
+    function showSection(sectionId, el) {
+        const sections = document.querySelectorAll('.content-section');
+        sections.forEach(section => section.classList.remove('active'));
+
+        document.getElementById(sectionId).classList.add('active');
+
+        const links = document.querySelectorAll('nav a');
+        links.forEach(link => link.classList.remove('active'));
+        el.classList.add('active');
+    }
+</script>
+
+</body>
+</html>
